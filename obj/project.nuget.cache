@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "7ZwftRchH3I=",
+  "dgSpecHash": "1PWzRbZSkls=",
   "success": true,
   "projectFilePath": "C:\\Users\\dev1\\Desktop\\Corso_Dev1\\personal projects\\1_pp\\1_pp.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\dev1\\.nuget\\packages\\spectre.console\\0.49.1\\spectre.console.0.49.1.nupkg.sha512"
+  ],
   "logs": []
 }
