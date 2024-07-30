@@ -10,20 +10,18 @@ class Program
     static int[] guessCode = new int [difficultyLevel]; // Codice tentativo
     static int attempts = 10; // Tentativi effettuati dall'utente
     static int rounds = 1;
-    static bool youWon = true;
+    static bool playAgain = true;
+    static bool gameIsRunning = true;
 
     static void Main(string[] args)
     {
-        while (true)
+        while (playAgain)
         {
         Console.WriteLine("Benvenuto a Mastermind! Prova a indovinare il codice di numeri.");
 
         DifficultyMenu();
         GenerateSecretCode();
-        while (youWon)
-        {
-            GenerateGuessCode();
-        }    
+        GenerateGuessCode();
         }
     }
 
@@ -87,6 +85,8 @@ class Program
     
     static void GenerateGuessCode()
     {
+        while (attempts > 0)
+        {
             Console.Write("Inserisci il tuo tentativo: ");
             string input = Console.ReadLine()!;
             guessCode = Array.ConvertAll(input.Split('-'), int.Parse);
@@ -94,10 +94,9 @@ class Program
             string guesscode = string.Join("-", guessCode);
             Console.WriteLine(guesscode);
 
-            youWon = Hints(guessCode); // Valutare il tentativo dell'utente e controllare se è corretto
+            bool youWon = Hints(guessCode);
         
         attempts--;
-        rounds++;
 
         if (youWon)
             {
@@ -105,15 +104,20 @@ class Program
                 Console.WriteLine("Cosa vuoi fare?");
                 Console.WriteLine("1. Ricomincia la partita\n2. Esci dal gioco");
                 int choice = Convert.ToInt32(Console.ReadLine());
-                if (choice == 1)
+                switch (choice)
                 {
-                    rounds = 0;
-                    youWon = false;
-                }        
-                if (choice == 2)
-                {
-                    
-                    Console.WriteLine("Ciao ciao");
+                case 1:
+                    {
+                        attempts = 0;
+                        break;
+                    }        
+                case 2:
+                    {
+                        Console.WriteLine("Ciao ciao");
+                        attempts = 0;
+                        playAgain = false;
+                        break;
+                    }
                 }
             }
         else if (attempts == 0)
@@ -130,9 +134,9 @@ class Program
                 break;
                 case 2:
                     Console.WriteLine ($"Il codice era {string.Join("-", secretCode)}");
-                    youWon = false;
-                break;
+                    break;
                 case 3:
+                    playAgain = false;
                 break;
             }
         }
@@ -144,6 +148,8 @@ class Program
         {
             Console.WriteLine($"\nRitenta, hai ancora {attempts} tentativi.");
         } 
-        
+        rounds++;
+        }
     }
 }
+
