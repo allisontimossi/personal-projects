@@ -8,6 +8,7 @@
 ## Implementazioni
 - [X] Livelli di difficoltà: scelta tra quante cifre e quanto lungo il codice
 - [X] Livelli di difficoltà: scelta tra quanti colori giocare
-- [ ] Possibilità di ricominciare la partita, continuarla o uscire
-- [ ] Gestione eccezioni
-- [ ] Salvataggio nome giocatore e punteggio
+- [X] Possibilità di ricominciare la partita, continuarla o uscire
+- [x] Salvataggio nome giocatore e punteggio
+- [] Salvataggio su array giocate precedenti
+
