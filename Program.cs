@@ -18,9 +18,10 @@ class Program
 //-----------------------------------------------------------------------------------------------------------------------------------------
     static string[] secretCode; // Codice segreto da indovinare
     static string[] guessCode;  // Codice tentativo
+    static string[] hints = new string [50];
+    static string[] dots = new string [50];
 
-    static string hint = "";
-    
+
     static int rounds = 0;
     static bool playAgain = true;
     static string path = @"punteggi.csv";
@@ -41,11 +42,22 @@ class Program
         Console.WriteLine("Benvenuto a Mastermind! Prova a indovinare il codice di numeri.");
         DifficultyMenu();
         GenerateSecretCode();
-        GenerateGuessCode();
-        
+        while (attempts > 0)
+        {
+            GenerateGuessCode();
+            rounds++;
+            EndOfTheGame();
+            Table();
+        }
         }
     }
-
+    static void CreateScoresFile()
+    {
+        if (!File.Exists(path)) 
+        {
+            File.Create(path).Close();
+        }
+    }
     static void DifficultyMenu()
         {
             name = AnsiConsole.Prompt(new TextPrompt<string>("Contro chi sto giocando?"));
@@ -57,21 +69,22 @@ class Program
         }
     static void GenerateSecretCode()
     {
-        Random random = new Random(); // Generare un codice segreto casuale di cursor numeri
+        Random random = new Random(); 
         secretCode = new string [cursor];
         for (int i = 0; i < cursor; i++)
         {
-            secretCode[i] = chosenPalette[random.Next(1, range)];  // colori da 1 a 6
+            secretCode[i] = chosenPalette[random.Next(1, range)];  
         }
     }
 
     static bool Hints(string[] guessCode)
     {
-        int blackDot = 0, whiteDot = 0;                     // counter black dot - white dot settato a zero
-        bool[] visited = new bool[cursor];         // traccia dei numeri già controllati nel codice segreto
-        bool[] guessVisited = new bool[cursor];    // traccia dei numeri già controllati nel tentativo dell'utente (per evitare di controllare lo stesso numero più volte)
+        
+        int blackDot = 0; int whiteDot = 0;  // counter black dot - white dot settato a zero
+        bool[] visited = new bool[cursor];          // traccia dei numeri già controllati nel codice segreto
+        bool[] guessVisited = new bool[cursor];     // traccia dei numeri già controllati nel tentativo dell'utente (per evitare di controllare lo stesso numero più volte)
 
-        for (int i = 0; i < cursor; i++)   // counter numeri corretti posizione corretta
+        for (int i = 0; i < cursor; i++)            // counter numeri corretti posizione corretta
         {
             if (guessCode[i] == secretCode[i]) 
             {
@@ -80,13 +93,13 @@ class Program
                 guessVisited[i] = true;
             }
         }
-        for (int i = 0; i < cursor; i++)   //counter numeri corretti posizione sbagliata
+        for (int i = 0; i < cursor; i++)            //counter numeri corretti posizione sbagliata
         {
             if (!guessVisited[i])
             {
                 for (int j = 0; j < cursor; j++)
                 {
-                    if (!visited[j] && guessCode[i] == secretCode[j]) // Se il numero è corretto ma non nella posizione corretta incrementare il contatore e segnare il numero come visitato nel codice segreto
+                    if (!visited[j] && guessCode[i] == secretCode[j]) // numero corretto posizione sbagliata: incrementa il contatore e segna il numero come visitato nel codice segreto
                     {
                         whiteDot++;
                         visited[j] = true;
@@ -95,17 +108,16 @@ class Program
                 }
             }
         }
-        hint = $"{Emoji.Known.BlackCircle}: {blackDot} - {Emoji.Known.WhiteCircle}: {whiteDot}";
-        
+        string hint = $"{Emoji.Known.BlackCircle}: {blackDot} - {Emoji.Known.WhiteCircle}: {whiteDot}";
+        Console.WriteLine(hint);  
+        hints [rounds-1] = hint;
         return blackDot == cursor; // restituisce vero se tutti i numeri sono corretti e nella posizione corretta, altrimenti false  
     }
 
-    
     static void GenerateGuessCode()
     {
         guessCode = new string [cursor];
-        while (attempts > 0)
-        {
+
             for (int i = 0; i < guessCode.Length; i++)
             {
                 AnsiConsole.WriteLine("\n\nScegli il tuo codice: ");
@@ -114,22 +126,26 @@ class Program
                     .PageSize(chosenPalette.Count)
                     .AddChoices(chosenPalette));
                 Console.Clear();
-            Console.WriteLine($"{string.Join("-", guessCode)}");
+            Console.WriteLine($"{string.Join(" ", guessCode)}");
             // decommentare se vuoi barare
-            Console.WriteLine($"{string.Join("-", secretCode)}");
+            Console.WriteLine($"{string.Join(" ", secretCode)}");
             }
-            string guesscode = $"{string.Join("-", guessCode)}";
-            bool youWon = Hints(guessCode);
-        
-        attempts--;
-        
+            string guesscode = $"{string.Join(" ", guessCode)}";
+            dots [rounds] = guesscode;
+            attempts--;
+
+    }
+    static void EndOfTheGame()
+    {
         //calcolo del punteggio
         double value = 2;
         double power = (1-(attempts-rounds))*(cursor*range/81);
         score = Math.Pow(value, power);
-        
+
+        bool youWon = Hints(guessCode);
         if (youWon)
         {
+            Table();
             attempts = 0;
             Console.WriteLine($"Complimenti! Hai indovinato il codice segreto in {rounds} tentativi!");
             File.AppendAllText(path, $"\n{score} - {name} - {currentDate}/{currentMonth}-{currentHour}:{currentMinute}");
@@ -140,6 +156,7 @@ class Program
             switch (choice)
             {
             case 1:
+                rounds = 0;
                 break;     
             case 2:
                 Console.WriteLine("Ciao ciao");
@@ -150,6 +167,7 @@ class Program
         else if (attempts == 0)
         {
             Console.WriteLine("\nMi dispiace, ma hai perso!");
+            Table();
             //Menu di scelta fine partita
             Console.WriteLine("Cosa vuoi fare?");
             Console.WriteLine("1. Continua la partita \n2. Comincia una nuova partita\n3. Esci dal gioco");
@@ -163,6 +181,7 @@ class Program
                 case 2:
                     Console.WriteLine ($"Il codice era {string.Join("-", secretCode)}");
                     File.AppendAllText(path, $"\n{0} - {name} - {currentDate}/{currentMonth}-{currentHour}:{currentMinute}");
+                    rounds = 0;
                     break;
                 case 3:
                     playAgain = false;
@@ -177,16 +196,22 @@ class Program
         {
             Console.WriteLine($"\nRitenta, hai ancora {attempts} tentativi.");
         } 
-
-        rounds++;
-        }
+        
     }
-    static void CreateScoresFile()
+    
+    static void Table()
     {
-        if (!File.Exists(path)) 
-        {
-            File.Create(path).Close();
-        }
+        var table = new Table();
+            table.AddColumn("Round");
+            table.AddColumn("Pedine");
+            table.AddColumn("Suggerimenti");
+            for (int i = 0; i < rounds; i++)
+            {
+                table.AddRow((i+1).ToString(), dots[i], hints[i]);
+            }
+            
+            Console.Clear();
+            AnsiConsole.Write(table);
     }
 }
 

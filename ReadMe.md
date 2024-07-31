@@ -10,5 +10,5 @@
 - [X] Livelli di difficoltà: scelta tra quanti colori giocare
 - [X] Possibilità di ricominciare la partita, continuarla o uscire
 - [x] Salvataggio nome giocatore e punteggio
-- [] Salvataggio su array giocate precedenti
-
+- [x] Sostituzione cursori codice: da numeri  a colori per renderlo più simile al gioco reale
+- [ ] Salvataggio su array giocate precedenti
